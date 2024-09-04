@@ -50,22 +50,23 @@ jobs:
     strategy:
       matrix:
         # macos-13 points to x64 based OS and mocos-latest points to arm based OS
-        os: [ubuntu-latest]
+        os:
+            - macos-13
         cabal:
             - 3.12.1.0
         ghc:
             - 9.8.2
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - uses: haskell-actions/setup@v2
         id: setup-haskell-cabal
         name: Setup Haskell
         with:
             ghc-version: ${{ matrix.ghc }}
             cabal-version: ${{ matrix.cabal }}
-
-      - name: Check out code
-        uses: actions/checkout@v4
 
       - name: cache
         uses: actions/cache@v4
