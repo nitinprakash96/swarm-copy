@@ -7,6 +7,8 @@
 no-tests-no-benchmarks: False
 unconstrained: False
 
+distribution: jammy
+
 -- Run cabal-docspec
 docspec: True
 
