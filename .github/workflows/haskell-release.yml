@@ -6,8 +6,8 @@ on:
   # See patterns explanation at:
   # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
   push:
-    branches:
-        - main
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
   create_release:
