@@ -64,7 +64,6 @@ jobs:
         run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
 
       - name: Upload Release Asset
-        id: Upload release Asset
         uses: softprops/action-gh-release@v2
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
