@@ -117,9 +117,9 @@ jobs:
       #   # If it does we can do it ourselves
       #   run: cabal v2-haddock --builddir=docs --haddock-for-hackage --enable-doc
 
-      - uses: haskell-actions/hackage-publish@v1
-        with:
-          hackageToken: "${{ secrets.HACKAGE_AUTH_TOKEN }}"
-          packagesPath: dist-newstyle/sdist
-          # docsPath: docs
-          publish: true
+      # - uses: haskell-actions/hackage-publish@v1
+      #   with:
+      #     hackageToken: "${{ secrets.HACKAGE_AUTH_TOKEN }}"
+      #     packagesPath: dist-newstyle/sdist
+      #     # docsPath: docs
+      #     publish: true
