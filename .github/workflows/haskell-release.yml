@@ -61,6 +61,12 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Setup docker (missing on MacOS)
+        if: runner.os == 'macos'
+        run: |
+            brew install docker
+            colima start
+
       - uses: haskell-actions/setup@v2
         id: setup-haskell-cabal
         name: Setup Haskell
