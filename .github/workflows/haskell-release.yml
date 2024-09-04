@@ -10,36 +10,7 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
-  create_release:
-    name: Create Github Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Zip data directory
-        run: |
-          zip -r swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            LICENSE
-            swarm-data.zip
-
-      - name: Output Release URL File
-        run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
-
-      - name: Save Release URL File for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: release_url
-          path: release_url.txt
-
   build_artifact:
-    needs: [create_release]
     name: Haskell-Release - ${{ matrix.os }} - ${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
     container:
@@ -61,12 +32,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Setup docker (missing on MacOS)
-        if: runner.os == 'macos'
-        run: |
-            brew install docker
-            colima start
-
       - uses: haskell-actions/setup@v2
         id: setup-haskell-cabal
         name: Setup Haskell
@@ -83,6 +48,9 @@ jobs:
             ${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
             ${{ matrix.os }}-${{ matrix.ghc }}-
 
+      - name: Zip data directory
+        run: zip -r swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
+
       - name: Install dependencies
         run: |
           cabal v2-build --disable-tests --disable-benchmarks --dependencies-only -j2 all
@@ -95,26 +63,19 @@ jobs:
       - name: Set binary path name
         run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
 
-      - name: Load Release URL File from release job
-        uses: actions/download-artifact@v4
-        with:
-          name: release_url
-
-      - name: Get Release File Name & Upload URL
-        id: get_release_info
-        run: |
-          echo "upload_url=$(cat release_url.txt)" >> "$GITHUB_OUTPUT"
-
       - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1.0.1
+        id: Upload release Asset
+        uses: softprops/action-gh-release@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_release_info.outputs.upload_url }}
-          asset_path: ${{ env.BINARY_PATH }}
-          asset_name: swarm-${{ runner.os }}
-          asset_content_type: application/octet-stream
+            body_path: ${{ env.BINARY_PATH }}
+            name: swarm-${{ runner.os }}
+            draft: false
+            prerelease: false
+            files: |
+              LICENSE
+              swarm-data.zip
 
       - name: Generate tarball for Hackage
         run: cabal v2-sdist
