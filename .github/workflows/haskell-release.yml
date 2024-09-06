@@ -10,7 +10,7 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
-  build_artifact:
+  build:
     name: Haskell-Release - ${{ matrix.os }} - ${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
     container:
@@ -22,6 +22,8 @@ jobs:
       matrix:
         # macos-13 points to x64 based OS and mocos-latest points to arm based OS
         os:
+            - ubuntu-latest
+            - macos-latest
             - macos-13
         cabal:
             - 3.12.1.0
