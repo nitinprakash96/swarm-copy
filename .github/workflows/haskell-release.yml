@@ -13,11 +13,6 @@ jobs:
   build:
     name: Haskell-Release - ${{ matrix.os }} - ${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
-    container:
-      # It might be good idea to use older runner for building binary:
-      # on latest runners like fedora, it would link symbols in newer
-      # system libraries, so users could not run it on older OSes
-      image: buildpack-deps:jammy
     strategy:
       matrix:
         # macos-13 points to x64 based OS and mocos-latest points to arm based OS
