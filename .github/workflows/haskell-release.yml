@@ -61,24 +61,24 @@ jobs:
         run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
 
       - name: Set binary OS name
-        uses: allenevans/set-env@v4
+        uses: allenevans/set-env@v4.0.0
         with:
             BINARY_OS: ${{ runner.os }}
 
       - if: (matrix.os == 'macos-13') || (matrix.os == 'macos-latest')
         name: Set binary OS name on Macos
-        uses: allenevans/set-env@v4
+        uses: allenevans/set-env@v4.0.0
         with:
             BINARY_OS: 'Darwin'
 
       - name: Set binary Arch name
-        uses: allenevans/set-env@v4
+        uses: allenevans/set-env@v4.0.0
         with:
             ARCH: 'x86_64'
 
       - if: matrix.os == 'macos-latest'
         name: Set binary ARCH name for apple silicon
-        uses: allenevans/set-env@v4
+        uses: allenevans/set-env@v4.0.0
         with:
             ARCH: 'arm64'
 
