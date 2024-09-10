@@ -65,11 +65,11 @@ jobs:
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            body_path: ${{ env.BINARY_PATH }}
             name: swarm-${{ runner.os }}
             draft: false
             prerelease: false
             files: |
+              ${{ env.BINARY_PATH }}
               LICENSE
               swarm-data.zip
 
