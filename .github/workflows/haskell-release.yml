@@ -10,7 +10,7 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
-  build:
+  build-binaries:
     name: Haskell-Release - ${{ matrix.os }} - ${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -60,16 +60,79 @@ jobs:
       - name: Set binary path name
         run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
 
-      - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set binary OS name
+        uses: allenevans/set-env@v4
         with:
-            name: swarm-${{ runner.os }}
+            BINARY_OS: ${{ runner.os }}
+
+      - if: (matrix.os == 'macos-13') || (matrix.os == 'macos-latest')
+        name: Set binary OS name on Macos
+        uses: allenevans/set-env@v4
+        with:
+            BINARY_OS: 'Darwin'
+
+      - name: Set binary Arch name
+        uses: allenevans/set-env@v4
+        with:
+            ARCH: 'x86_64'
+
+      - if: matrix.os == 'macos-latest'
+        name: Set binary ARCH name for apple silicon
+        uses: allenevans/set-env@v4
+        with:
+            ARCH: 'arm64'
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: swarm-${{ env.BINARY_OS }}-${{env.ARCH}}
+            path: ${{ env.BINARY_PATH }}
+            retention-days: 3
+
+  create-release:
+      name: Create release
+      needs: [build-binaries]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+
+        - name: Download Linux x86_64
+          uses: actions/download-artifact@v4
+          with:
+            name: swarm-Linux-x86_64
+            path: artifacts/swarm-Linux-x86_64
+
+        - name: Download executable for Macos x86_64
+          uses: actions/download-artifact@v4
+          with:
+            name: swarm-Darwin-x86_64
+            path: artifacts/swarm-Darwin-x86_64
+
+        - name: Download executable for arm64 Macos
+          uses: actions/download-artifact@v4
+          with:
+            name: swarm-Darwin-arm64
+            path: artifacts/swarm-Darwin-arm64
+
+        - name: Rename executables
+          run: |
+              mv artifacts/swarm-Linux-x86_64/swarm  swarm-Linux-x86_64
+              mv artifacts/swarm-Darwin-x86_64/swarm swarm-Darwin-x86_64
+              mv artifacts/swarm-Darwin-arm64/swarm swarm-Darwin-arm64
+
+        - name: Upload Release Asset
+          uses: softprops/action-gh-release@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            name: swarm
             draft: false
             prerelease: false
             files: |
-              ${{ env.BINARY_PATH }}
+              swarm-Linux-x86_64
+              swarm-Darwin-x86_64
+              swarm-Darwin-arm64
               LICENSE
               swarm-data.zip
 
