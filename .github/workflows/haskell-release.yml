@@ -61,7 +61,7 @@ jobs:
         run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
 
       - name: Upload Release Asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -73,8 +73,8 @@ jobs:
               LICENSE
               swarm-data.zip
 
-      - name: Generate tarball for Hackage
-        run: cabal v2-sdist
+      # - name: Generate tarball for Hackage
+      #   run: cabal v2-sdist
 
       # - name: Generate documentation for Hackage
       #   # The hackage-server attempts to build documentation for library packages, but this can fail.
