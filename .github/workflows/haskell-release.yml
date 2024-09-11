@@ -36,6 +36,9 @@ jobs:
             ghc-version: ${{ matrix.ghc }}
             cabal-version: ${{ matrix.cabal }}
 
+      - name: Freeze
+        run: cabal freeze
+
       - name: cache
         uses: actions/cache@v4
         with:
