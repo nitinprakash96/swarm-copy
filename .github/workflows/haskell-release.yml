@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           key: ${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
-          path: ~/.cabal/store
+          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
             ${{ matrix.os }}-${{ matrix.ghc }}-
@@ -48,31 +48,31 @@ jobs:
       - name: Zip data directory
         run: zip -r swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
 
+      - name: Set binary path name
+        run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
+
+      - name: Set binary OS name
+        run: echo BINARY_OS=${{ runner.os }} >> "$GITHUB_ENV"
+
+      - if: (matrix.os == 'macos-13') || (matrix.os == 'macos-latest')
+        name: Set binary OS name on Macos
+        run: echo BINARY_OS="Darwin" >> "$GITHUB_ENV"
+
+      - name: Set binary Arch name
+        run: echo ARCH="x86_64" >> "$GITHUB_ENV"
+
+      - if: matrix.os == 'macos-latest'
+        name: Set binary ARCH name for apple silicon
+        run: echo ARCH="arm64" >> "$GITHUB_ENV"
+
       - name: Install dependencies
-        run: |
-          cabal v2-build --disable-tests --disable-benchmarks --dependencies-only -j2 all
+        run: cabal v2-build --disable-tests --disable-benchmarks --dependencies-only -j2 all
 
       - name: Build binary
         run: |
           mkdir dist
           cabal v2-install exe:swarm --install-method=copy --overwrite-policy=always --installdir=dist
 
-      - name: Set binary path name
-        run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
-
-      - name: Set binary OS name
-        run: BINARY_OS=${{ runner.os }} >> "$GITHUB_ENV"
-
-      - if: (matrix.os == 'macos-13') || (matrix.os == 'macos-latest')
-        name: Set binary OS name on Macos
-        run: BINARY_OS="Darwin" >> "$GITHUB_ENV"
-
-      - name: Set binary Arch name
-        run: ARCH="x86_64" >> "$GITHUB_ENV"
-
-      - if: matrix.os == 'macos-latest'
-        name: Set binary ARCH name for apple silicon
-        run: ARCH="arm64" >> "$GITHUB_ENV"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
