@@ -39,11 +39,11 @@ jobs:
       - name: cache
         uses: actions/cache@v4
         with:
-          key: ${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
           path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
           restore-keys: |
-            ${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
-            ${{ matrix.os }}-${{ matrix.ghc }}-
+            ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+            ${{ runner.os }}-${{ matrix.ghc }}-
 
       - name: Zip data directory
         run: zip -r swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
