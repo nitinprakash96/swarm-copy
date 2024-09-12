@@ -47,11 +47,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.ghc }}-
 
-      - name: Zip data directory
-        run: |
-            zip -r swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
-            echo SWARM_DATA_PATH="./swarm-data.zip" >> "$GITHUB_ENV"
-
       - name: Set binary path name
         run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
 
@@ -84,13 +79,6 @@ jobs:
             path: ${{ env.BINARY_PATH }}
             retention-days: 3
 
-      - name: Upload Swarm data
-        uses: actions/upload-artifact@v4
-        with:
-            name: swarm-data.zip
-            path: ${{ env.SWARM_DATA_PATH }}
-            retention-days: 3
-
   create-release:
       name: Create release
       needs: [build-binaries]
@@ -117,18 +105,14 @@ jobs:
             name: swarm-Darwin-arm64
             path: artifacts/swarm-Darwin-arm64
 
-        - name: Download Swarm data
-          uses: actions/download-artifact@v4
-          with:
-            name: swarm-data.zip
-            path: artifacts/swarm-Darwin-arm64
+        - name: Zip data directory
+          run: zip -r swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
 
         - name: Rename executables and data
           run: |
               mv artifacts/swarm-Linux-x86_64/swarm  swarm-Linux-x86_64
               mv artifacts/swarm-Darwin-x86_64/swarm swarm-Darwin-x86_64
               mv artifacts/swarm-Darwin-arm64/swarm swarm-Darwin-arm64
-              mv artifacts/swarm-data.zip swarm-data.zip
 
         - name: Upload Release Asset
           uses: softprops/action-gh-release@v1
