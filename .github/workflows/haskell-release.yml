@@ -48,7 +48,9 @@ jobs:
             ${{ runner.os }}-${{ matrix.ghc }}-
 
       - name: Zip data directory
-        run: zip -r artifacts/swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
+        run: |
+            zip -r swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
+            mv swarm-data.zip artifacts/
 
       - name: Set binary path name
         run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
