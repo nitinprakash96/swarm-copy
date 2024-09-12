@@ -50,7 +50,7 @@ jobs:
       - name: Zip data directory
         run: |
             zip -r swarm-data.zip ./data || { echo "Unable to create a zip archive."; exit 1;  }
-            mv swarm-data.zip artifacts/
+            echo SWARM_DATA_PATH="./swarm-data.zip" >> "$GITHUB_ENV"
 
       - name: Set binary path name
         run: echo BINARY_PATH="./dist/swarm" >> "$GITHUB_ENV"
@@ -77,12 +77,18 @@ jobs:
           mkdir dist
           cabal v2-install exe:swarm --install-method=copy --overwrite-policy=always --installdir=dist
 
-
-      - name: Upload Artifact
+      - name: Upload executables
         uses: actions/upload-artifact@v4
         with:
             name: swarm-${{ env.BINARY_OS }}-${{env.ARCH}}
             path: ${{ env.BINARY_PATH }}
+            retention-days: 3
+
+      - name: Upload Swarm data
+        uses: actions/upload-artifact@v4
+        with:
+            name: swarm-data.zip
+            path: ${{ env.SWARM_DATA_PATH }}
             retention-days: 3
 
   create-release:
@@ -109,6 +115,12 @@ jobs:
           uses: actions/download-artifact@v4
           with:
             name: swarm-Darwin-arm64
+            path: artifacts/swarm-Darwin-arm64
+
+        - name: Download Swarm data
+          uses: actions/download-artifact@v4
+          with:
+            name: swarm-data.zip
             path: artifacts/swarm-Darwin-arm64
 
         - name: Rename executables and data
